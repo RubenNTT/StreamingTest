@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor HLS</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+        }
+        #video-container {
+            width: 100%;
+            height: 100%;
+        }
+        video {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="video-container">
+        <video id="video" controls></video>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script>
+        function getQueryParam(param) {
+            var urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        var videoUrl = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+        var autoplay = getQueryParam('autoplay') === '1';
+        var muted = getQueryParam('muted') === '1';
+
+        var video = document.getElementById('video');
+        video.autoplay = autoplay;
+        video.muted = muted;
+
+        if (Hls.isSupported()) {
+            var hls = new Hls();
+            hls.loadSource(videoUrl);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                if (autoplay) {
+                    video.play();
+                }
+            });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = videoUrl;
+            video.addEventListener('canplay', function() {
+                if (autoplay) {
+                    video.play();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
